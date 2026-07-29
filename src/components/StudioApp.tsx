@@ -4,6 +4,11 @@ import { EXAMPLE_VIDEOS } from '../data/examples';
 import { WhiteboardVideo, ChatItem } from '../types';
 import { WhiteboardPlayer } from './WhiteboardPlayer';
 import {
+  getSavedUserSession,
+  saveConversationToSupabase,
+  fetchConversationsFromSupabase,
+} from '../lib/supabase';
+import {
   Plus,
   Search,
   MessageSquare,
@@ -35,6 +40,16 @@ export const StudioApp: React.FC<StudioAppProps> = ({
   const [selectedAspect, setSelectedAspect] = useState<'16:9' | '9:16' | '1:1'>('16:9');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStep, setGenerationStep] = useState<number>(0);
+
+  // Fetch conversations from Supabase on mount
+  React.useEffect(() => {
+    const user = getSavedUserSession();
+    fetchConversationsFromSupabase(user).then((savedChats) => {
+      if (savedChats && savedChats.length > 0) {
+        setChats(savedChats);
+      }
+    });
+  }, []);
 
   const activeChat = chats.find(c => c.id === activeChatId);
 
@@ -71,6 +86,12 @@ export const StudioApp: React.FC<StudioAppProps> = ({
     try {
       let finalVideo: WhiteboardVideo;
 
+      // Fetch logged-in user if available
+      const activeUser = getSavedUserSession();
+      const userPayload = activeUser
+        ? { email: activeUser.email, name: activeUser.name }
+        : { email: 'anonymous@council.ai', name: 'Guest User' };
+
       // Call backend API /api/generate-whiteboard (which posts to WEBHOOK_URL)
       const response = await fetch('/api/generate-whiteboard', {
         method: 'POST',
@@ -78,7 +99,7 @@ export const StudioApp: React.FC<StudioAppProps> = ({
         body: JSON.stringify({
           prompt: promptToUse,
           aspectRatio: selectedAspect,
-          user: { email: 'developer@council.ai', name: 'Council User' }
+          user: userPayload
         }),
       });
 
@@ -97,6 +118,9 @@ export const StudioApp: React.FC<StudioAppProps> = ({
         status: 'ready',
         video: finalVideo,
       };
+
+      // Save to Supabase DB (conversations and chat_messages tables)
+      saveConversationToSupabase(newChatItem, activeUser);
 
       setChats(prev => [newChatItem, ...prev]);
       setActiveChatId(newChatItem.id);
