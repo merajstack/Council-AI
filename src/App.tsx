@@ -6,14 +6,10 @@ import { FeatureGrid } from './components/FeatureGrid';
 import { CtaBanner } from './components/CtaBanner';
 import { Footer } from './components/Footer';
 import { StudioApp } from './components/StudioApp';
-import { WhiteboardPlayer } from './components/WhiteboardPlayer';
-import { EXAMPLE_VIDEOS } from './data/examples';
-import { WhiteboardVideo } from './types';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<'landing' | 'studio'>('landing');
   const [initialPrompt, setInitialPrompt] = useState('');
-  const [demoVideo, setDemoVideo] = useState<WhiteboardVideo | null>(null);
 
   const handleOpenStudio = (prompt: string = '') => {
     if (prompt) setInitialPrompt(prompt);
@@ -56,11 +52,7 @@ export default function App() {
       <HeroSection
         onOpenStudio={() => handleOpenStudio()}
         onWatchDemo={() => {
-          if (EXAMPLE_VIDEOS.length > 0) {
-            setDemoVideo(EXAMPLE_VIDEOS[0]);
-          } else {
-            handleOpenStudio('Ask a question. Watch the Council debate it.');
-          }
+          handleOpenStudio('Ask a question. Watch the Council debate it.');
         }}
         onSelectPrompt={(prompt) => handleOpenStudio(prompt)}
       />
@@ -77,19 +69,8 @@ export default function App() {
       {/* Footer */}
       <Footer />
 
-      {/* Demo Video Modal */}
-      {demoVideo && (
-        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-4xl">
-            <WhiteboardPlayer
-              video={demoVideo}
-              onClose={() => setDemoVideo(null)}
-            />
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }
+
 

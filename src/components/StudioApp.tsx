@@ -1,13 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CouncilLogo } from './CouncilLogo';
-import { EXAMPLE_VIDEOS } from '../data/examples';
-import { WhiteboardVideo, ChatItem } from '../types';
-import { WhiteboardPlayer } from './WhiteboardPlayer';
-import {
-  getSavedUserSession,
-  saveConversationToSupabase,
-  fetchConversationsFromSupabase,
-} from '../lib/supabase';
+import { AgentGraph } from './AgentGraph';
+import { FinalReport } from './FinalReport';
+import { ChatItem } from '../types';
 import {
   Plus,
   Search,
@@ -15,11 +10,9 @@ import {
   ArrowUp,
   Sparkles,
   ArrowLeft,
-  Brain,
-  Palette,
-  Mic,
+  CheckCircle2,
   Loader2,
-  CheckCircle2
+  RefreshCw
 } from 'lucide-react';
 
 interface StudioAppProps {
@@ -32,39 +25,96 @@ export const StudioApp: React.FC<StudioAppProps> = ({
   initialPrompt = '',
 }) => {
   const [chats, setChats] = useState<ChatItem[]>([]);
-
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [promptInput, setPromptInput] = useState(initialPrompt);
   const [searchQuery, setSearchQuery] = useState('');
-  const [graphPaper, setGraphPaper] = useState(true);
-  const [selectedAspect, setSelectedAspect] = useState<'16:9' | '9:16' | '1:1'>('16:9');
+  const [showWebhookInactiveToast, setShowWebhookInactiveToast] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generationStep, setGenerationStep] = useState<number>(0);
 
-  // Fetch conversations from Supabase on mount
-  React.useEffect(() => {
-    const user = getSavedUserSession();
-    fetchConversationsFromSupabase(user).then((savedChats) => {
-      if (savedChats && savedChats.length > 0) {
-        setChats(savedChats);
-      }
-    });
-  }, []);
+  // Agent Graph & Pipeline state
+  const [currentQuestion, setCurrentQuestion] = useState<string>('');
+  const [completedStages, setCompletedStages] = useState<Set<string>>(new Set());
+  const [isPipelineActive, setIsPipelineActive] = useState<boolean>(false);
+  const [finalReportData, setFinalReportData] = useState<any>(null);
 
   const activeChat = chats.find(c => c.id === activeChatId);
 
+  // Subscribe to SSE progress stream for real-time /progress events
+  useEffect(() => {
+    let eventSource: EventSource | null = null;
+
+    try {
+      eventSource = new EventSource('/api/progress-stream');
+
+      eventSource.onmessage = (e) => {
+        try {
+          const payload = JSON.parse(e.data);
+          if (payload.stage) {
+            const validStages = [
+              'goal',
+              'research',
+              'evidence',
+              'credibility',
+              'knowledge_graph',
+              'expert_council',
+              'devils_advocate',
+              'consensus'
+            ];
+
+            const stageKey = payload.stage;
+            if (validStages.includes(stageKey)) {
+              setCompletedStages((prev) => {
+                const next = new Set(prev);
+                next.add(stageKey);
+                return next;
+              });
+
+              if (stageKey === 'consensus') {
+                setIsPipelineActive(false);
+              }
+            }
+          }
+        } catch (err) {
+          // Ignore non-JSON or heartbeat events silently
+        }
+      };
+
+      eventSource.onerror = () => {
+        // Retry connection automatically
+      };
+    } catch (err) {
+      console.warn('SSE stream unavailable, relying on POST /run response');
+    }
+
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+    };
+  }, []);
+
   // Quick suggestions list
   const quickPrompts = [
-    'How do multi-agent decision models navigate high-stakes operational strategies?',
-    'Evaluate credit risk trade-offs for enterprise liquidity',
-    'How do stablecoin cross-border payments work under regulatory shifts?',
-    'Should we dual-source semiconductor suppliers in 2026?',
-    'Explain how credit scores work',
+    'Should my startup raise funding or bootstrap?',
+    "What's the fastest way to validate my product idea?",
+    'Compare two business strategies and recommend one.',
+    'Identify the biggest risks in my project.',
+    'Create a 90-day execution plan.',
   ];
 
   const handleStartNewChat = () => {
     setActiveChatId(null);
     setPromptInput('');
+    setCompletedStages(new Set());
+    setFinalReportData(null);
+    setIsPipelineActive(false);
+    setCurrentQuestion('');
+  };
+
+  const handleResetGraph = () => {
+    setCompletedStages(new Set());
+    setFinalReportData(null);
+    setIsPipelineActive(false);
   };
 
   const handleSelectQuickPrompt = (prompt: string) => {
@@ -77,100 +127,107 @@ export const StudioApp: React.FC<StudioAppProps> = ({
     if (!promptToUse.trim() || isGenerating) return;
 
     setIsGenerating(true);
-    setGenerationStep(1);
-
-    // Multi-Agent Generation Stepper Animation
-    setTimeout(() => setGenerationStep(2), 1200);
-    setTimeout(() => setGenerationStep(3), 2400);
+    setCurrentQuestion(promptToUse);
+    setCompletedStages(new Set()); // Start graph in idle state with all nodes dim
+    setFinalReportData(null); // Render report ONLY after /run resolves
+    setIsPipelineActive(true);
 
     try {
-      let finalVideo: WhiteboardVideo;
+      let responseData: any = null;
 
-      // Fetch logged-in user if available
-      const activeUser = getSavedUserSession();
-      const userPayload = activeUser
-        ? { email: activeUser.email, name: activeUser.name }
-        : { email: 'anonymous@council.ai', name: 'Guest User' };
-
-      // Call backend API /api/generate-whiteboard (which posts to WEBHOOK_URL)
-      const response = await fetch('/api/generate-whiteboard', {
+      // Call Endpoint 1: POST /run with the question
+      const response = await fetch('/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: promptToUse,
-          aspectRatio: selectedAspect,
-          user: userPayload
-        }),
+        body: JSON.stringify({ question: promptToUse }),
       });
 
       if (response.ok) {
-        const data = await response.json();
-        finalVideo = data.video;
+        responseData = await response.json();
       } else {
-        throw new Error('Server generation error');
+        // Fallback endpoint if /run is proxied differently
+        const fbRes = await fetch('/api/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: promptToUse }),
+        });
+        if (fbRes.ok) {
+          responseData = await fbRes.json();
+        }
       }
 
-      const newChatItem: ChatItem = {
-        id: `chat-${Date.now()}`,
-        title: promptToUse.length > 28 ? promptToUse.substring(0, 26) + '...' : promptToUse,
-        prompt: promptToUse,
-        createdAt: new Date().toISOString(),
-        status: 'ready',
-        video: finalVideo,
-      };
+      // Check webhook status
+      if (!responseData?.webhookSent) {
+        setShowWebhookInactiveToast(true);
+      } else {
+        setShowWebhookInactiveToast(false);
+      }
 
-      // Save to Supabase DB (conversations and chat_messages tables)
-      saveConversationToSupabase(newChatItem, activeUser);
+      // Set final report data only after /run response arrives
+      if (responseData) {
+        setFinalReportData(responseData);
 
-      setChats(prev => [newChatItem, ...prev]);
-      setActiveChatId(newChatItem.id);
+        const newChatItem: ChatItem = {
+          id: `chat-${Date.now()}`,
+          title: promptToUse.length > 28 ? promptToUse.substring(0, 26) + '...' : promptToUse,
+          prompt: promptToUse,
+          createdAt: new Date().toISOString(),
+          status: 'ready',
+          video: responseData.video,
+        };
+
+        setChats((prev) => [newChatItem, ...prev]);
+        setActiveChatId(newChatItem.id);
+      }
+
       setPromptInput('');
     } catch (err) {
-      console.warn('API generation fallback to client synthesis:', err);
+      console.warn('Pipeline execution error:', err);
+      setShowWebhookInactiveToast(true);
     } finally {
       setIsGenerating(false);
-      setGenerationStep(0);
+      setIsPipelineActive(false);
     }
   };
 
-  const filteredChats = chats.filter(c =>
+  const filteredChats = chats.filter((c) =>
     c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.prompt.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="min-h-screen bg-[#fcfcfd] flex flex-col md:flex-row text-left font-sans text-slate-800">
+    <div className="min-h-screen bg-[#faf8ff] flex flex-col md:flex-row text-left font-sans text-slate-800">
       
-      {/* LEFT SIDEBAR matching Natural Tones design */}
-      <aside className="w-full md:w-72 bg-[#f5f5f0] border-r border-slate-200/80 p-4 flex flex-col justify-between shrink-0 h-auto md:h-screen sticky top-0 z-30">
+      {/* LEFT SIDEBAR matching Lumina Graph / Technical Minimalist design */}
+      <aside className="w-full md:w-72 bg-[#f2f3ff] border-r border-slate-200/80 p-4 flex flex-col justify-between shrink-0 h-auto md:h-screen sticky top-0 z-30">
         
         <div className="space-y-4">
           
           {/* Header with Council Logo and Back button */}
-          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-200/60">
             <button
               onClick={onBackToLanding}
               className="flex items-center gap-2 text-slate-700 hover:text-slate-900 transition-colors cursor-pointer group"
               title="Return to Landing Page"
             >
               <ArrowLeft className="w-4 h-4 text-slate-400 group-hover:-translate-x-1 transition-transform" />
-              <CouncilLogo size="sm" />
+              <CouncilLogo size="sm" badgeColor="#006c49" />
             </button>
             <button
               onClick={onBackToLanding}
-              className="text-xs text-slate-400 hover:text-slate-600 px-2 py-1 rounded bg-slate-50 border border-slate-200"
+              className="text-xs text-slate-500 hover:text-slate-700 px-2 py-1 rounded bg-white border border-slate-200 cursor-pointer"
             >
               Home
             </button>
           </div>
 
-          {/* New Chat Button */}
+          {/* New Question Button */}
           <button
             onClick={handleStartNewChat}
-            className="w-full py-2.5 px-3 bg-white border border-slate-200 rounded-xl font-medium text-slate-800 flex items-center justify-start gap-2 shadow-2xs hover:border-slate-400 hover:shadow-xs transition-all cursor-pointer"
+            className="w-full py-2.5 px-3 bg-white border border-emerald-200 rounded-xl font-medium text-[#006c49] flex items-center justify-start gap-2 shadow-2xs hover:border-[#006c49] hover:shadow-xs transition-all cursor-pointer"
           >
-            <Plus className="w-4 h-4 text-slate-500" />
-            <span className="text-sm font-semibold">New chat</span>
+            <Plus className="w-4 h-4 text-[#006c49]" />
+            <span className="text-sm font-semibold">New Question</span>
           </button>
 
           {/* Search Input */}
@@ -180,36 +237,39 @@ export const StudioApp: React.FC<StudioAppProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search chats"
-              className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 focus:outline-none focus:border-[#b59268]"
+              placeholder="Search history"
+              className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs text-slate-700 focus:outline-none focus:border-[#006c49]"
             />
           </div>
 
-          {/* Recent Chat History */}
+          {/* Recent Question History */}
           <div className="space-y-1 pt-2">
             <div className="text-[10px] font-mono uppercase font-bold text-slate-400 px-1 tracking-wider">
-              Recent Explainer Chats
+              Agent Pipeline Runs
             </div>
 
             {filteredChats.length === 0 ? (
               <div className="text-center py-6 text-slate-400 text-xs space-y-1">
                 <MessageSquare className="w-6 h-6 mx-auto opacity-40" />
-                <p>No chats found.</p>
+                <p>No queries run yet.</p>
               </div>
             ) : (
               <div className="space-y-1 max-h-[calc(100vh-380px)] overflow-y-auto pr-1">
                 {filteredChats.map((chat) => (
                   <button
                     key={chat.id}
-                    onClick={() => setActiveChatId(chat.id)}
+                    onClick={() => {
+                      setActiveChatId(chat.id);
+                      setCurrentQuestion(chat.prompt);
+                    }}
                     className={`w-full text-left px-2.5 py-2 rounded-lg text-xs font-medium flex items-center justify-between transition-colors cursor-pointer ${
                       activeChatId === chat.id
-                        ? 'bg-slate-100 text-slate-900 font-semibold border border-slate-200'
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                        ? 'bg-emerald-100/70 text-[#00422b] font-semibold border border-emerald-300'
+                        : 'text-slate-600 hover:bg-white hover:text-slate-900'
                     }`}
                   >
                     <span className="truncate pr-2">{chat.title}</span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                    <span className="w-2 h-2 rounded-full bg-[#006c49] shrink-0" />
                   </button>
                 ))}
               </div>
@@ -232,181 +292,163 @@ export const StudioApp: React.FC<StudioAppProps> = ({
       </aside>
 
       {/* MAIN STUDIO WORKSPACE */}
-      <main className="flex-1 bg-graph-paper min-h-screen flex flex-col justify-between p-4 sm:p-8 lg:p-12 overflow-y-auto">
+      <main className="flex-1 bg-[#faf8ff] min-h-screen flex flex-col justify-between p-4 sm:p-6 lg:p-8 overflow-y-auto">
         
-        {/* If Active Chat selected -> Show Video Player */}
-        {activeChat && activeChat.video ? (
-          <div className="max-w-5xl mx-auto w-full space-y-6">
-            <div className="flex items-center justify-between">
-              <button
-                onClick={handleStartNewChat}
-                className="text-xs font-semibold text-[#b59268] hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                ← Back to Studio Prompt
-              </button>
-              <div className="text-xs font-mono text-slate-400">
-                Created: {activeChat.createdAt}
-              </div>
-            </div>
-
-            <WhiteboardPlayer video={activeChat.video} />
-          </div>
-        ) : (
-          /* Empty Workspace view matching Image 2 */
-          <div className="max-w-3xl mx-auto w-full my-auto space-y-8 text-center py-6">
+        <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col justify-between my-2 space-y-6">
+          
+          {/* TOP AREA: Icon & Tagline */}
+          <div className="space-y-4 text-center pt-2">
             
-            {/* Top Central Emblem / Eye Graphic */}
-            <div className="mx-auto w-20 h-20 rounded-full bg-white border-2 border-[#181e29] shadow-md flex items-center justify-center">
-              <CouncilLogo size="lg" showText={false} />
-            </div>
-
-            {/* Title & Subtitle */}
-            <div className="space-y-3">
-              <h2 className="font-sans text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-                What should Council AI debate?
-              </h2>
-              <p className="font-sans text-slate-600 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
-                Ask a question that needs strategic clarity. Council AI&apos;s autonomous specialist agents debate the scenario, stress-test risks, and build a proof-backed decision blueprint.
-              </p>
-            </div>
-
-            {/* Interactive Prompt Input Box matching Image 2 */}
-            <div className="card-handcrafted p-4 bg-white space-y-3 shadow-md focus-within:border-[#b59268] focus-within:ring-2 focus-within:ring-[#b59268]/20 transition-all text-left">
-              <textarea
-                value={promptInput}
-                onChange={(e) => setPromptInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmitPrompt();
-                  }
-                }}
-                placeholder="Ask Council AI to debate a question..."
-                rows={3}
-                className="w-full resize-none border-none focus:outline-none text-slate-800 text-base font-sans placeholder:text-slate-400"
-              />
-
-              {/* Bottom Control Pills & Send Button */}
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setGraphPaper(!graphPaper)}
-                    className={`px-3 py-1 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
-                      graphPaper
-                        ? 'bg-amber-50 text-amber-900 border-amber-200'
-                        : 'bg-slate-100 text-slate-600 border-slate-200'
-                    }`}
-                  >
-                    Graph paper
-                  </button>
-
-                  <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs font-mono border border-slate-200">
-                    <button
-                      onClick={() => setSelectedAspect('16:9')}
-                      className={`px-2 py-0.5 rounded ${selectedAspect === '16:9' ? 'bg-white font-bold text-slate-900 shadow-2xs' : 'text-slate-500'}`}
-                    >
-                      16:9
-                    </button>
-                    <button
-                      onClick={() => setSelectedAspect('1:1')}
-                      className={`px-2 py-0.5 rounded ${selectedAspect === '1:1' ? 'bg-white font-bold text-slate-900 shadow-2xs' : 'text-slate-500'}`}
-                    >
-                      1:1
-                    </button>
-                    <button
-                      onClick={() => setSelectedAspect('9:16')}
-                      className={`px-2 py-0.5 rounded ${selectedAspect === '9:16' ? 'bg-white font-bold text-slate-900 shadow-2xs' : 'text-slate-500'}`}
-                    >
-                      9:16
-                    </button>
-                  </div>
-                </div>
-
+            {/* Top Workspace Bar */}
+            <div className="flex items-center justify-between border-b border-slate-200/80 pb-3 text-left">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold uppercase text-[#006c49] tracking-wider">
+                  Agent Graph Orchestrator
+                </span>
+              </div>
+              {currentQuestion && (
                 <button
-                  onClick={() => handleSubmitPrompt()}
-                  disabled={!promptInput.trim() || isGenerating}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-white transition-all cursor-pointer ${
-                    promptInput.trim() && !isGenerating
-                      ? 'bg-[#181e29] hover:bg-slate-800 shadow-md hover:scale-105'
-                      : 'bg-slate-300 cursor-not-allowed'
-                  }`}
+                  onClick={handleStartNewChat}
+                  className="text-xs font-semibold text-[#006c49] hover:underline flex items-center gap-1 cursor-pointer"
                 >
-                  {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowUp className="w-5 h-5" />}
+                  ← Ask another question
                 </button>
+              )}
+            </div>
+
+            {/* Icon & Brand Tagline Section */}
+            <div className="space-y-3 py-4 flex flex-col items-center">
+              <div className="w-20 h-20 rounded-full bg-white border-2 border-[#006c49]/20 shadow-md flex items-center justify-center p-2 hover:scale-105 transition-transform">
+                <CouncilLogo size="xl" showText={false} badgeColor="#006c49" />
+              </div>
+              
+              <div className="space-y-1">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#006c49] tracking-tight font-sans">
+                  Council AI — Every AI. One Council.
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed font-sans">
+                  Submit a prompt to run autonomous specialist agents across goal setting, research synthesis, evidence verification, knowledge graphs, and expert consensus.
+                </p>
               </div>
             </div>
 
-            {/* Multi-Agent Live Stepper Status during generation */}
-            {isGenerating && (
-              <div className="bg-white border-2 border-[#b59268] rounded-2xl p-6 shadow-xl space-y-4 text-left animate-fade-in">
-                <div className="flex items-center gap-2 text-sm font-bold text-[#181e29]">
-                  <Sparkles className="w-4 h-4 text-[#b59268] animate-spin" />
-                  <span>Council AI Multi-Agent Engine actively debating...</span>
+            {/* Quick Sample Scenario Pills */}
+            {!currentQuestion && (
+              <div className="space-y-2 max-w-2xl mx-auto pt-1">
+                <div className="text-[11px] font-mono text-slate-400 uppercase font-bold tracking-wider">
+                  Select a Sample Scenario
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                  
-                  {/* Step 1 */}
-                  <div className={`p-3 rounded-xl border transition-all ${
-                    generationStep >= 1 ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-slate-50 text-slate-400'
-                  }`}>
-                    <div className="flex items-center justify-between font-bold mb-1">
-                      <span className="flex items-center gap-1.5"><Brain className="w-3.5 h-3.5" /> 1. Risk Analyst Agent</span>
-                      {generationStep > 1 ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : generationStep === 1 && <Loader2 className="w-3 h-3 animate-spin" />}
-                    </div>
-                    <p className="text-[11px] leading-snug">Cross-examining proof points & market data...</p>
-                  </div>
-
-                  {/* Step 2 */}
-                  <div className={`p-3 rounded-xl border transition-all ${
-                    generationStep >= 2 ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-slate-50 text-slate-400'
-                  }`}>
-                    <div className="flex items-center justify-between font-bold mb-1">
-                      <span className="flex items-center gap-1.5"><Palette className="w-3.5 h-3.5" /> 2. Strategy Designer</span>
-                      {generationStep > 2 ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : generationStep === 2 && <Loader2 className="w-3 h-3 animate-spin" />}
-                    </div>
-                    <p className="text-[11px] leading-snug">Laying out decision nodes & trade-off matrices...</p>
-                  </div>
-
-                  {/* Step 3 */}
-                  <div className={`p-3 rounded-xl border transition-all ${
-                    generationStep >= 3 ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-slate-50 text-slate-400'
-                  }`}>
-                    <div className="flex items-center justify-between font-bold mb-1">
-                      <span className="flex items-center gap-1.5"><Mic className="w-3.5 h-3.5" /> 3. Consensus Synthesizer</span>
-                      {generationStep === 3 && <Loader2 className="w-3 h-3 animate-spin" />}
-                    </div>
-                    <p className="text-[11px] leading-snug">Building verified proof-backed blueprint...</p>
-                  </div>
-
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {quickPrompts.map((promptText, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSelectQuickPrompt(promptText)}
+                      className="px-3.5 py-1.5 rounded-full bg-white border border-slate-200 hover:border-[#006c49] hover:bg-emerald-50/50 text-xs text-slate-700 hover:text-[#006c49] transition-all cursor-pointer flex items-center gap-1.5 font-mono text-[11px] shadow-2xs"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-[#10b981]" />
+                      <span>{promptText}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* Quick Prompt Suggestion Pills */}
-            <div className="space-y-2">
-              <div className="text-xs font-mono text-slate-400 uppercase font-bold tracking-wider">
-                Or try a suggested prompt
+          </div>
+
+          {/* MIDDLE AREA: AGENT GRAPH & REPORT (DISPLAYED ONLY WHEN A PROMPT HAS BEEN SUBMITTED) */}
+          {(currentQuestion.trim().length > 0 || isPipelineActive || completedStages.size > 0) && (
+            <div className="space-y-6 w-full animate-fade-in my-4">
+              
+              {/* AGENT GRAPH ANIMATION COMPONENT */}
+              <AgentGraph
+                completedStages={completedStages}
+                isPipelineActive={isPipelineActive || isGenerating}
+                onReset={handleResetGraph}
+                lastQuestion={currentQuestion}
+              />
+
+              {/* FINAL REPORT COMPONENT (Rendered only after POST /run resolves) */}
+              {finalReportData && (
+                <FinalReport
+                  question={currentQuestion}
+                  data={finalReportData}
+                />
+              )}
+
+            </div>
+          )}
+
+          {/* BOTTOM AREA: CHATBOX / INPUT FORM */}
+          <div className="w-full pt-4 pb-2">
+            <div className="bg-white border-2 border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
+              <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-600">
+                <span>Submit Question to Agent Pipeline</span>
+                <span className="text-[10px] text-[#006c49] uppercase">POST /run</span>
               </div>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {quickPrompts.map((promptText, i) => (
+
+              <div className="border border-slate-200 rounded-xl p-3 bg-[#f2f3ff]/40 space-y-3 focus-within:border-[#006c49] focus-within:ring-2 focus-within:ring-[#006c49]/20 transition-all">
+                <textarea
+                  value={promptInput}
+                  onChange={(e) => setPromptInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmitPrompt();
+                    }
+                  }}
+                  placeholder="Type a question for the multi-agent graph pipeline..."
+                  rows={2}
+                  className="w-full resize-none border-none focus:outline-none bg-transparent text-slate-800 text-sm font-sans placeholder:text-slate-400"
+                />
+
+                <div className="flex items-center justify-between pt-2 border-t border-slate-200/60">
+                  <span className="text-xs text-slate-400 font-mono">Press Enter to dispatch POST /run</span>
                   <button
-                    key={i}
-                    onClick={() => handleSelectQuickPrompt(promptText)}
-                    className="px-3 py-1.5 rounded-full bg-white border border-slate-200 hover:border-slate-400 text-xs text-slate-700 hover:text-slate-900 transition-all shadow-2xs hover:shadow-xs cursor-pointer flex items-center gap-1.5"
+                    onClick={() => handleSubmitPrompt()}
+                    disabled={!promptInput.trim() || isGenerating}
+                    className={`px-4 py-2 rounded-full font-mono text-xs font-bold text-white transition-all cursor-pointer flex items-center gap-1.5 ${
+                      promptInput.trim() && !isGenerating
+                        ? 'bg-[#006c49] hover:bg-[#005236] shadow-md hover:scale-105'
+                        : 'bg-slate-300 cursor-not-allowed'
+                    }`}
                   >
-                    <Sparkles className="w-3 h-3 text-[#b59268]" />
-                    <span>{promptText}</span>
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Running Pipeline...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Submit to /run</span>
+                        <ArrowUp className="w-4 h-4" />
+                      </>
+                    )}
                   </button>
-                ))}
+                </div>
               </div>
             </div>
-
           </div>
-        )}
+
+        </div>
 
       </main>
+
+      {/* Webhook Inactive Popup Toast at bottom right */}
+      {showWebhookInactiveToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#181e29] text-white border border-slate-700 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all animate-fade-in">
+          <div className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
+          <span className="text-xs font-semibold tracking-wide text-slate-200 font-mono">Webhook inactive</span>
+          <button
+            onClick={() => setShowWebhookInactiveToast(false)}
+            className="ml-2 text-slate-400 hover:text-white text-xs cursor-pointer p-0.5 rounded hover:bg-slate-800 transition-colors"
+            title="Dismiss notification"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
     </div>
   );
 };
+

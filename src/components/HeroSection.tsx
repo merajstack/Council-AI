@@ -169,13 +169,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                       Ask Council AI to debate a question...
                     </div>
                     <div className="flex items-center justify-between pt-2 text-[10px]">
-                      <div className="flex items-center gap-1.5">
-                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
-                          Graph paper
-                        </span>
-                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
-                          16:9
-                        </span>
+                      <div className="flex items-center gap-1.5 text-slate-500 font-medium">
+                        <span>✨ Multi-agent decision synthesis</span>
                       </div>
                       <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold">
                         ↑
@@ -188,22 +183,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (onSelectPrompt) onSelectPrompt("Explain how credit scores work");
+                        if (onSelectPrompt) onSelectPrompt("Should my startup raise funding or bootstrap?");
                         else onOpenStudio();
                       }}
                       className="px-2 py-0.5 rounded-full bg-white border border-slate-200 text-[10px] text-slate-600 hover:border-slate-400 transition-colors"
                     >
-                      ✨ Explain how credit scores work
+                      ✨ Should my startup raise funding or bootstrap?
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (onSelectPrompt) onSelectPrompt("How does the water cycle work?");
+                        if (onSelectPrompt) onSelectPrompt("Create a 90-day execution plan.");
                         else onOpenStudio();
                       }}
                       className="px-2 py-0.5 rounded-full bg-white border border-slate-200 text-[10px] text-slate-600 hover:border-slate-400 transition-colors"
                     >
-                      ✨ How does the water cycle work?
+                      ✨ Create a 90-day execution plan.
                     </button>
                   </div>
                 </div>
