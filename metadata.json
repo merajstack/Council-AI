@@ -1,0 +1,6 @@
+{
+  "name": "Council AI",
+  "description": "AI whiteboard explainer video platform and multi-agent decision making system for organizations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

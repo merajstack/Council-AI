@@ -1,0 +1,47 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default-deny catch-all rule
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Primitive Security Helpers
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && (request.auth.uid == userId || (request.auth.token.email != null && request.auth.token.email == userId));
+    }
+
+    // User Profile Rules
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && (request.auth.uid == userId || incoming().email == request.auth.token.email);
+      allow delete: if isOwner(userId);
+    }
+
+    // Whiteboard Explainer Chats Rules
+    match /chats/{chatId} {
+      allow get, list: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.userId == request.auth.token.email);
+      allow create: if isSignedIn() && (incoming().userId == request.auth.uid || incoming().userId == request.auth.token.email);
+      allow update: if isSignedIn() && (existing().userId == request.auth.uid || existing().userId == request.auth.token.email) && incoming().userId == existing().userId;
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || existing().userId == request.auth.token.email);
+    }
+  }
+}

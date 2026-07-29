@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-handwritten {
+    font-family: 'Patrick Hand', 'Caveat', cursive, sans-serif;
+  }
+  .font-sans {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+  
+  /* Graph paper background */
+  .bg-graph-paper {
+    background-color: #fcfcfd;
+    background-image: 
+      linear-gradient(to right, rgba(226, 232, 240, 0.65) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(226, 232, 240, 0.65) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .bg-graph-paper-dense {
+    background-color: #ffffff;
+    background-image: 
+      linear-gradient(to right, rgba(226, 232, 240, 0.45) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(226, 232, 240, 0.45) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+
+  /* Yellow hand-drawn marker highlight */
+  .marker-highlight {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .marker-highlight::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: -4px;
+    right: -4px;
+    height: 14px;
+    background-color: #facc15;
+    z-index: -1;
+    border-radius: 4px;
+    transform: rotate(-0.6deg);
+    opacity: 0.9;
+  }
+
+  .card-handcrafted {
+    background-color: #ffffff;
+    border: 1.5px solid #1e293b;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+
+  .btn-beige {
+    background-color: #8b7355;
+    color: #ffffff;
+    border: 1.5px solid #634f3a;
+    box-shadow: 0 4px 0 0 #634f3a;
+    transition: all 0.15s ease;
+  }
+
+  .btn-beige:hover {
+    background-color: #796348;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 0 #52402e;
+  }
+
+  .btn-beige:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 0 #52402e;
+  }
+
+  .btn-dark {
+    background-color: #181e29;
+    color: #ffffff;
+    border: 1.5px solid #0f172a;
+    box-shadow: 0 4px 12px rgba(24, 30, 41, 0.25);
+    transition: all 0.2s ease;
+  }
+
+  .btn-dark:hover {
+    background-color: #222b3b;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(24, 30, 41, 0.35);
+  }
+}
+
+/* Custom drawing stroke animations for whiteboard */
+@keyframes drawStroke {
+  0% { stroke-dashoffset: 1000; opacity: 0.3; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+
+.animate-draw {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawStroke 2.5s ease-in-out forwards;
+}
+

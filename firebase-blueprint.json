@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile document storing basic account metadata",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique user ID" },
+        "email": { "type": "string", "description": "User Google email address" },
+        "name": { "type": "string", "description": "User full name" },
+        "picture": { "type": "string", "description": "Avatar image URL" },
+        "createdAt": { "type": "string", "description": "Timestamp ISO string" }
+      },
+      "required": ["id", "email", "name"]
+    },
+    "ExplainerChat": {
+      "title": "Whiteboard Explainer Chat",
+      "description": "Whiteboard explainer chat session created by a user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique chat ID" },
+        "userId": { "type": "string", "description": "Owner Google User ID or email" },
+        "title": { "type": "string", "maxLength": 100, "description": "Title of the chat" },
+        "prompt": { "type": "string", "maxLength": 1000, "description": "User initial prompt" },
+        "status": { "type": "string", "description": "Status of the chat session" },
+        "createdAt": { "type": "string", "description": "Timestamp ISO string" },
+        "video": { "type": "object", "description": "Generated whiteboard video data" }
+      },
+      "required": ["id", "userId", "title", "prompt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profile collection"
+    },
+    "/chats/{chatId}": {
+      "schema": { "$ref": "#/entities/ExplainerChat" },
+      "description": "Whiteboard explainer chats created by users"
+    }
+  }
+}
