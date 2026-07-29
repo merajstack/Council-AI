@@ -4,6 +4,11 @@ import { AgentGraph } from './AgentGraph';
 import { FinalReport } from './FinalReport';
 import { ChatItem } from '../types';
 import {
+  getSavedUserSession,
+  saveConversationToSupabase,
+  fetchConversationsFromSupabase,
+} from '../lib/supabase';
+import {
   Plus,
   Search,
   MessageSquare,
@@ -36,6 +41,16 @@ export const StudioApp: React.FC<StudioAppProps> = ({
   const [completedStages, setCompletedStages] = useState<Set<string>>(new Set());
   const [isPipelineActive, setIsPipelineActive] = useState<boolean>(false);
   const [finalReportData, setFinalReportData] = useState<any>(null);
+
+  // Fetch conversations from Supabase on mount
+  useEffect(() => {
+    const user = getSavedUserSession();
+    fetchConversationsFromSupabase(user).then((savedChats) => {
+      if (savedChats && savedChats.length > 0) {
+        setChats(savedChats);
+      }
+    });
+  }, []);
 
   const activeChat = chats.find(c => c.id === activeChatId);
 
@@ -167,6 +182,7 @@ export const StudioApp: React.FC<StudioAppProps> = ({
       if (responseData) {
         setFinalReportData(responseData);
 
+        const activeUser = getSavedUserSession();
         const newChatItem: ChatItem = {
           id: `chat-${Date.now()}`,
           title: promptToUse.length > 28 ? promptToUse.substring(0, 26) + '...' : promptToUse,
@@ -175,6 +191,9 @@ export const StudioApp: React.FC<StudioAppProps> = ({
           status: 'ready',
           video: responseData.video,
         };
+
+        // Save conversation and chat_messages to Supabase
+        saveConversationToSupabase(newChatItem, activeUser);
 
         setChats((prev) => [newChatItem, ...prev]);
         setActiveChatId(newChatItem.id);
