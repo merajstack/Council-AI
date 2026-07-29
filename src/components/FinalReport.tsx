@@ -37,15 +37,15 @@ export const FinalReport: React.FC<FinalReportProps> = ({ question, data }) => {
     <div className="w-full max-w-5xl mx-auto my-6 space-y-6 text-left font-sans animate-fade-in">
       
       {/* Header Banner */}
-      <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+      <div className="flex items-center justify-between border-b border-[#e8ddcc] pb-4">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-1 rounded-full text-xs font-mono font-medium">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <span className="inline-flex items-center gap-1.5 bg-[#f7f3ec] border border-[#d6c7b2] text-[#3d2c1d] px-3 py-1 rounded-full text-xs font-mono font-medium">
+            <CheckCircle2 className="w-4 h-4 text-[#8c6842]" />
             Consensus Decision Report
           </span>
           {data.confidence && (
-            <span className="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-800 px-2.5 py-1 rounded-full text-xs font-mono font-medium">
-              <Award className="w-3.5 h-3.5 text-amber-600" />
+            <span className="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-900 px-2.5 py-1 rounded-full text-xs font-mono font-medium">
+              <Award className="w-3.5 h-3.5 text-amber-700" />
               Confidence: {data.confidence}
             </span>
           )}
@@ -57,7 +57,7 @@ export const FinalReport: React.FC<FinalReportProps> = ({ question, data }) => {
         
         {/* Question Title */}
         <div className="space-y-2 border-b border-slate-100 pb-4">
-          <div className="inline-block px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-900 text-xs font-mono uppercase font-bold tracking-wider">
+          <div className="inline-block px-2.5 py-0.5 rounded-md bg-[#ebdcb9] text-[#3d2c1d] text-xs font-mono uppercase font-bold tracking-wider">
             User Question
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 leading-tight">
@@ -67,9 +67,9 @@ export const FinalReport: React.FC<FinalReportProps> = ({ question, data }) => {
 
         {/* 1. Context Summary */}
         {data.summary && (
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
-            <div className="text-xs font-mono uppercase font-bold text-slate-500 flex items-center gap-1.5">
-              <Brain className="w-4 h-4 text-indigo-600" /> Strategic Context & Synthesis
+          <div className="p-4 bg-[#fdfbf7] border border-[#e8ddcc] rounded-xl space-y-1.5">
+            <div className="text-xs font-mono uppercase font-bold text-[#735338] flex items-center gap-1.5">
+              <Brain className="w-4 h-4 text-[#8c6842]" /> Strategic Context & Synthesis
             </div>
             <p className="text-sm sm:text-base text-slate-800 leading-relaxed font-sans">
               {data.summary}
@@ -79,9 +79,9 @@ export const FinalReport: React.FC<FinalReportProps> = ({ question, data }) => {
 
         {/* 2. Recommendation Banner */}
         {data.recommendation && (
-          <div className="p-5 bg-[#181e29] text-white rounded-xl space-y-1.5 shadow-md">
-            <div className="text-xs font-mono uppercase font-bold text-amber-300 flex items-center gap-1.5">
-              <Send className="w-4 h-4 text-amber-400" /> Primary Recommendation
+          <div className="p-5 bg-[#3d2c1d] text-white rounded-xl space-y-1.5 shadow-md">
+            <div className="text-xs font-mono uppercase font-bold text-[#ebdcb9] flex items-center gap-1.5">
+              <Send className="w-4 h-4 text-[#b59268]" /> Primary Recommendation
             </div>
             <p className="text-base sm:text-lg text-slate-100 font-semibold leading-snug">
               {data.recommendation}
@@ -94,11 +94,11 @@ export const FinalReport: React.FC<FinalReportProps> = ({ question, data }) => {
           
           {/* Supporting Arguments */}
           {data.supporting_arguments && data.supporting_arguments.length > 0 && (
-            <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-2">
-              <div className="text-xs font-mono uppercase font-bold text-emerald-800 flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Supporting Arguments & Proof Points
+            <div className="p-4 bg-[#f7f3ec] border border-[#d6c7b2] rounded-xl space-y-2">
+              <div className="text-xs font-mono uppercase font-bold text-[#3d2c1d] flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-[#8c6842]" /> Supporting Arguments & Proof Points
               </div>
-              <ul className="text-xs sm:text-sm text-emerald-950 space-y-1.5 list-disc pl-4">
+              <ul className="text-xs sm:text-sm text-[#2b1b10] space-y-1.5 list-disc pl-4">
                 {data.supporting_arguments.map((arg, i) => (
                   <li key={i}>{arg}</li>
                 ))}
@@ -158,17 +158,17 @@ export const FinalReport: React.FC<FinalReportProps> = ({ question, data }) => {
           
           {/* Expert Council */}
           {data.expert_council && data.expert_council.length > 0 && (
-            <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+            <div className="p-4 bg-[#fdfbf7] border border-[#e8ddcc] rounded-xl space-y-3">
               <div className="text-xs font-mono uppercase font-bold text-slate-700 flex items-center gap-1.5">
                 <Users className="w-4 h-4 text-slate-600" /> Expert Council Opinions
               </div>
               <div className="space-y-2">
                 {data.expert_council.map((item, i) => {
                   if (typeof item === 'string') {
-                    return <p key={i} className="text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200">{item}</p>;
+                    return <p key={i} className="text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-[#e8ddcc]">{item}</p>;
                   }
                   return (
-                    <div key={i} className="p-2.5 bg-white rounded-lg border border-slate-200 space-y-1 text-xs">
+                    <div key={i} className="p-2.5 bg-white rounded-lg border border-[#e8ddcc] space-y-1 text-xs">
                       <div className="font-bold text-slate-900">{item.expert || item.role || 'Council Expert'}</div>
                       <p className="text-slate-600">{item.perspective}</p>
                     </div>
@@ -180,17 +180,17 @@ export const FinalReport: React.FC<FinalReportProps> = ({ question, data }) => {
 
           {/* Devil's Advocate */}
           {data.devils_advocate && data.devils_advocate.length > 0 && (
-            <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+            <div className="p-4 bg-[#fdfbf7] border border-[#e8ddcc] rounded-xl space-y-3">
               <div className="text-xs font-mono uppercase font-bold text-rose-800 flex items-center gap-1.5">
                 <AlertTriangle className="w-4 h-4 text-rose-600" /> Devil&apos;s Advocate Critique
               </div>
               <div className="space-y-2">
                 {data.devils_advocate.map((item, i) => {
                   if (typeof item === 'string') {
-                    return <p key={i} className="text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200">{item}</p>;
+                    return <p key={i} className="text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-[#e8ddcc]">{item}</p>;
                   }
                   return (
-                    <div key={i} className="p-2.5 bg-white rounded-lg border border-slate-200 space-y-1 text-xs">
+                    <div key={i} className="p-2.5 bg-white rounded-lg border border-[#e8ddcc] space-y-1 text-xs">
                       <div className="flex items-center justify-between font-bold text-slate-900">
                         <span>{item.point}</span>
                         {item.riskLevel && (
@@ -210,22 +210,22 @@ export const FinalReport: React.FC<FinalReportProps> = ({ question, data }) => {
 
         {/* 6. Execution Roadmap */}
         {data.roadmap && data.roadmap.length > 0 && (
-          <div className="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+          <div className="p-5 bg-[#fdfbf7] border border-[#e8ddcc] rounded-xl space-y-3">
             <div className="text-xs font-mono uppercase font-bold text-slate-700 flex items-center gap-1.5">
-              <Layers className="w-4 h-4 text-emerald-600" /> 90-Day Execution Roadmap
+              <Layers className="w-4 h-4 text-[#8c6842]" /> 90-Day Execution Roadmap
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {data.roadmap.map((step, i) => {
                 if (typeof step === 'string') {
                   return (
-                    <div key={i} className="p-3 bg-white rounded-xl border border-slate-200 text-xs">
-                      <span className="font-bold text-emerald-800">Phase {i + 1}:</span> {step}
+                    <div key={i} className="p-3 bg-white rounded-xl border border-[#e8ddcc] text-xs">
+                      <span className="font-bold text-[#3d2c1d]">Phase {i + 1}:</span> {step}
                     </div>
                   );
                 }
                 return (
-                  <div key={i} className="p-3 bg-white rounded-xl border border-slate-200 space-y-1 text-xs">
-                    <div className="font-mono text-[10px] text-emerald-700 font-bold uppercase">{step.phase}</div>
+                  <div key={i} className="p-3 bg-white rounded-xl border border-[#e8ddcc] space-y-1 text-xs">
+                    <div className="font-mono text-[10px] text-[#735338] font-bold uppercase">{step.phase}</div>
                     <div className="font-bold text-slate-900">{step.title}</div>
                     <p className="text-slate-600 text-[11px] leading-relaxed">{step.detail}</p>
                   </div>
@@ -237,19 +237,19 @@ export const FinalReport: React.FC<FinalReportProps> = ({ question, data }) => {
 
         {/* 7. Knowledge Graph */}
         {data.knowledge_graph && data.knowledge_graph.length > 0 && (
-          <div className="p-4 bg-emerald-950 text-white rounded-xl space-y-2">
-            <div className="text-xs font-mono uppercase font-bold text-emerald-400 flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-emerald-400" /> Knowledge Graph Connections
+          <div className="p-4 bg-[#2b1b10] text-white rounded-xl space-y-2">
+            <div className="text-xs font-mono uppercase font-bold text-[#ebdcb9] flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-[#b59268]" /> Knowledge Graph Connections
             </div>
             <div className="flex flex-wrap gap-2 text-xs font-mono">
               {data.knowledge_graph.map((item, i) => {
                 if (typeof item === 'string') {
-                  return <span key={i} className="bg-emerald-900/80 px-2.5 py-1 rounded-md text-emerald-200 border border-emerald-800">{item}</span>;
+                  return <span key={i} className="bg-[#3d2c1d] px-2.5 py-1 rounded-md text-[#ebdcb9] border border-[#735338]">{item}</span>;
                 }
                 return (
-                  <div key={i} className="bg-emerald-900/80 px-2.5 py-1 rounded-md text-emerald-200 border border-emerald-800 flex items-center gap-1.5">
+                  <div key={i} className="bg-[#3d2c1d] px-2.5 py-1 rounded-md text-[#ebdcb9] border border-[#735338] flex items-center gap-1.5">
                     <span className="font-bold">{item.entity}</span>
-                    <span className="text-emerald-400 font-sans italic text-[11px]">&rarr; {item.relation} &rarr;</span>
+                    <span className="text-[#b59268] font-sans italic text-[11px]">&rarr; {item.relation} &rarr;</span>
                     <span className="font-bold">{item.target}</span>
                   </div>
                 );

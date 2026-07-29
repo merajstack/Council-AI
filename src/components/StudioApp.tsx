@@ -15,9 +15,7 @@ import {
   ArrowUp,
   Sparkles,
   ArrowLeft,
-  CheckCircle2,
   Loader2,
-  RefreshCw
 } from 'lucide-react';
 
 interface StudioAppProps {
@@ -215,26 +213,26 @@ export const StudioApp: React.FC<StudioAppProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-[#faf8ff] flex flex-col md:flex-row text-left font-sans text-slate-800">
+    <div className="min-h-screen bg-[#faf7f2] flex flex-col md:flex-row text-left font-sans text-slate-800">
       
-      {/* LEFT SIDEBAR matching Lumina Graph / Technical Minimalist design */}
-      <aside className="w-full md:w-72 bg-[#f2f3ff] border-r border-slate-200/80 p-4 flex flex-col justify-between shrink-0 h-auto md:h-screen sticky top-0 z-30">
+      {/* LEFT SIDEBAR matching Natural Tones design */}
+      <aside className="w-full md:w-72 bg-[#f5f2eb] border-r border-[#e8ddcc] p-4 flex flex-col justify-between shrink-0 h-auto md:h-screen sticky top-0 z-30">
         
         <div className="space-y-4">
           
           {/* Header with Council Logo and Back button */}
-          <div className="flex items-center justify-between pb-2 border-b border-slate-200/60">
+          <div className="flex items-center justify-between pb-2 border-b border-[#e8ddcc]">
             <button
               onClick={onBackToLanding}
-              className="flex items-center gap-2 text-slate-700 hover:text-slate-900 transition-colors cursor-pointer group"
+              className="flex items-center gap-2 text-slate-700 hover:text-[#3d2c1d] transition-colors cursor-pointer group"
               title="Return to Landing Page"
             >
               <ArrowLeft className="w-4 h-4 text-slate-400 group-hover:-translate-x-1 transition-transform" />
-              <CouncilLogo size="sm" badgeColor="#006c49" />
+              <CouncilLogo size="sm" badgeColor="#b59268" />
             </button>
             <button
               onClick={onBackToLanding}
-              className="text-xs text-slate-500 hover:text-slate-700 px-2 py-1 rounded bg-white border border-slate-200 cursor-pointer"
+              className="text-xs text-slate-600 hover:text-[#3d2c1d] px-2 py-1 rounded bg-white border border-[#e8ddcc] cursor-pointer"
             >
               Home
             </button>
@@ -243,9 +241,9 @@ export const StudioApp: React.FC<StudioAppProps> = ({
           {/* New Question Button */}
           <button
             onClick={handleStartNewChat}
-            className="w-full py-2.5 px-3 bg-white border border-emerald-200 rounded-xl font-medium text-[#006c49] flex items-center justify-start gap-2 shadow-2xs hover:border-[#006c49] hover:shadow-xs transition-all cursor-pointer"
+            className="w-full py-2.5 px-3 bg-white border border-[#d6c7b2] rounded-xl font-medium text-[#3d2c1d] flex items-center justify-start gap-2 shadow-2xs hover:border-[#8c6842] hover:bg-[#fcfcfd] transition-all cursor-pointer"
           >
-            <Plus className="w-4 h-4 text-[#006c49]" />
+            <Plus className="w-4 h-4 text-[#8c6842]" />
             <span className="text-sm font-semibold">New Question</span>
           </button>
 
@@ -257,19 +255,19 @@ export const StudioApp: React.FC<StudioAppProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search history"
-              className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs text-slate-700 focus:outline-none focus:border-[#006c49]"
+              className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white border border-[#e8ddcc] text-xs text-slate-700 focus:outline-none focus:border-[#8c6842]"
             />
           </div>
 
           {/* Recent Question History */}
           <div className="space-y-1 pt-2">
-            <div className="text-[10px] font-mono uppercase font-bold text-slate-400 px-1 tracking-wider">
+            <div className="text-[10px] font-mono uppercase font-bold text-[#735338] px-1 tracking-wider">
               Agent Pipeline Runs
             </div>
 
             {filteredChats.length === 0 ? (
               <div className="text-center py-6 text-slate-400 text-xs space-y-1">
-                <MessageSquare className="w-6 h-6 mx-auto opacity-40" />
+                <MessageSquare className="w-6 h-6 mx-auto opacity-40 text-[#8c6842]" />
                 <p>No queries run yet.</p>
               </div>
             ) : (
@@ -283,12 +281,12 @@ export const StudioApp: React.FC<StudioAppProps> = ({
                     }}
                     className={`w-full text-left px-2.5 py-2 rounded-lg text-xs font-medium flex items-center justify-between transition-colors cursor-pointer ${
                       activeChatId === chat.id
-                        ? 'bg-emerald-100/70 text-[#00422b] font-semibold border border-emerald-300'
+                        ? 'bg-[#ebdcb9]/70 text-[#3d2c1d] font-semibold border border-[#b59268]'
                         : 'text-slate-600 hover:bg-white hover:text-slate-900'
                     }`}
                   >
                     <span className="truncate pr-2">{chat.title}</span>
-                    <span className="w-2 h-2 rounded-full bg-[#006c49] shrink-0" />
+                    <span className="w-2 h-2 rounded-full bg-[#8c6842] shrink-0" />
                   </button>
                 ))}
               </div>
@@ -298,10 +296,10 @@ export const StudioApp: React.FC<StudioAppProps> = ({
         </div>
 
         {/* Bottom Navigation / Exit Studio */}
-        <div className="pt-4 border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-600">
+        <div className="pt-4 border-t border-[#e8ddcc] flex items-center justify-between text-xs text-slate-600">
           <button
             onClick={onBackToLanding}
-            className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors text-left cursor-pointer font-medium"
+            className="flex items-center gap-2 text-slate-600 hover:text-[#3d2c1d] transition-colors text-left cursor-pointer font-medium"
           >
             <ArrowLeft className="w-4 h-4 text-slate-400" />
             <span>Return to Landing Page</span>
@@ -311,7 +309,7 @@ export const StudioApp: React.FC<StudioAppProps> = ({
       </aside>
 
       {/* MAIN STUDIO WORKSPACE */}
-      <main className="flex-1 bg-[#faf8ff] min-h-screen flex flex-col justify-between p-4 sm:p-6 lg:p-8 overflow-y-auto">
+      <main className="flex-1 bg-[#faf7f2] min-h-screen flex flex-col justify-between p-4 sm:p-6 lg:p-8 overflow-y-auto">
         
         <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col justify-between my-2 space-y-6">
           
@@ -319,16 +317,16 @@ export const StudioApp: React.FC<StudioAppProps> = ({
           <div className="space-y-4 text-center pt-2">
             
             {/* Top Workspace Bar */}
-            <div className="flex items-center justify-between border-b border-slate-200/80 pb-3 text-left">
+            <div className="flex items-center justify-between border-b border-[#e8ddcc] pb-3 text-left">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold uppercase text-[#006c49] tracking-wider">
+                <span className="text-xs font-mono font-bold uppercase text-[#735338] tracking-wider">
                   Agent Graph Orchestrator
                 </span>
               </div>
               {currentQuestion && (
                 <button
                   onClick={handleStartNewChat}
-                  className="text-xs font-semibold text-[#006c49] hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-semibold text-[#8c6842] hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   ← Ask another question
                 </button>
@@ -337,12 +335,12 @@ export const StudioApp: React.FC<StudioAppProps> = ({
 
             {/* Icon & Brand Tagline Section */}
             <div className="space-y-3 py-4 flex flex-col items-center">
-              <div className="w-20 h-20 rounded-full bg-white border-2 border-[#006c49]/20 shadow-md flex items-center justify-center p-2 hover:scale-105 transition-transform">
-                <CouncilLogo size="xl" showText={false} badgeColor="#006c49" />
+              <div className="w-20 h-20 rounded-full bg-white border-2 border-[#b59268]/30 shadow-md flex items-center justify-center p-2 hover:scale-105 transition-transform">
+                <CouncilLogo size="xl" showText={false} badgeColor="#b59268" />
               </div>
               
               <div className="space-y-1">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#006c49] tracking-tight font-sans">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#3d2c1d] tracking-tight font-sans">
                   Council AI — Every AI. One Council.
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed font-sans">
@@ -362,9 +360,9 @@ export const StudioApp: React.FC<StudioAppProps> = ({
                     <button
                       key={i}
                       onClick={() => handleSelectQuickPrompt(promptText)}
-                      className="px-3.5 py-1.5 rounded-full bg-white border border-slate-200 hover:border-[#006c49] hover:bg-emerald-50/50 text-xs text-slate-700 hover:text-[#006c49] transition-all cursor-pointer flex items-center gap-1.5 font-mono text-[11px] shadow-2xs"
+                      className="px-3.5 py-1.5 rounded-full bg-white border border-[#e8ddcc] hover:border-[#8c6842] hover:bg-[#f7f3ec] text-xs text-slate-700 hover:text-[#3d2c1d] transition-all cursor-pointer flex items-center gap-1.5 font-mono text-[11px] shadow-2xs"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-[#10b981]" />
+                      <Sparkles className="w-3.5 h-3.5 text-[#b59268]" />
                       <span>{promptText}</span>
                     </button>
                   ))}
@@ -402,10 +400,10 @@ export const StudioApp: React.FC<StudioAppProps> = ({
             <div className="bg-white border-2 border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
               <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-600">
                 <span>Submit Question to Agent Pipeline</span>
-                <span className="text-[10px] text-[#006c49] uppercase">POST /run</span>
+                <span className="text-[10px] text-[#735338] uppercase">POST /run</span>
               </div>
 
-              <div className="border border-slate-200 rounded-xl p-3 bg-[#f2f3ff]/40 space-y-3 focus-within:border-[#006c49] focus-within:ring-2 focus-within:ring-[#006c49]/20 transition-all">
+              <div className="border border-[#e8ddcc] rounded-xl p-3 bg-[#fdfbf7] space-y-3 focus-within:border-[#8c6842] focus-within:ring-2 focus-within:ring-[#8c6842]/20 transition-all">
                 <textarea
                   value={promptInput}
                   onChange={(e) => setPromptInput(e.target.value)}
@@ -420,14 +418,14 @@ export const StudioApp: React.FC<StudioAppProps> = ({
                   className="w-full resize-none border-none focus:outline-none bg-transparent text-slate-800 text-sm font-sans placeholder:text-slate-400"
                 />
 
-                <div className="flex items-center justify-between pt-2 border-t border-slate-200/60">
+                <div className="flex items-center justify-between pt-2 border-t border-[#e8ddcc]">
                   <span className="text-xs text-slate-400 font-mono">Press Enter to dispatch POST /run</span>
                   <button
                     onClick={() => handleSubmitPrompt()}
                     disabled={!promptInput.trim() || isGenerating}
                     className={`px-4 py-2 rounded-full font-mono text-xs font-bold text-white transition-all cursor-pointer flex items-center gap-1.5 ${
                       promptInput.trim() && !isGenerating
-                        ? 'bg-[#006c49] hover:bg-[#005236] shadow-md hover:scale-105'
+                        ? 'bg-[#3d2c1d] hover:bg-[#2b1b10] shadow-md hover:scale-105'
                         : 'bg-slate-300 cursor-not-allowed'
                     }`}
                   >
@@ -470,4 +468,3 @@ export const StudioApp: React.FC<StudioAppProps> = ({
     </div>
   );
 };
-

@@ -93,7 +93,6 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
     if (isNodeCompleted(node)) return false;
     if (!isPipelineActive) return false;
 
-    // A node is active if its predecessor stage is completed, but its own stage is not yet completed
     if (node.stage === 'goal') return isPipelineActive && !completedStages.has('goal');
     if (node.stage === 'research') return completedStages.has('goal') && !completedStages.has('research');
     if (node.stage === 'evidence') return completedStages.has('research') && !completedStages.has('evidence');
@@ -112,10 +111,10 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
       {/* Header section with typographic texture */}
       <div className="flex items-end justify-between px-2">
         <div className="flex flex-col">
-          <span className="font-mono text-[11px] text-[#006c49] uppercase tracking-widest font-bold mb-1">
+          <span className="font-mono text-[11px] text-[#735338] uppercase tracking-widest font-bold mb-1">
             Process Visualization
           </span>
-          <h2 className="text-2xl font-bold text-[#131b2e] tracking-tight">
+          <h2 className="text-2xl font-bold text-[#1e293b] tracking-tight">
             Neural Orchestration Graph
           </h2>
           {lastQuestion && (
@@ -126,9 +125,9 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-xs font-mono">
-            <div className={`w-2 h-2 rounded-full ${isPipelineActive ? 'bg-[#10b981] animate-pulse' : 'bg-slate-400'}`} />
-            <span className="text-[#00422b] font-medium uppercase">
+          <div className="flex items-center gap-1.5 bg-[#f7f3ec] border border-[#d6c7b2] px-3 py-1 rounded-full text-xs font-mono">
+            <div className={`w-2 h-2 rounded-full ${isPipelineActive ? 'bg-[#b59268] animate-pulse' : 'bg-slate-400'}`} />
+            <span className="text-[#3d2c1d] font-medium uppercase">
               {isPipelineActive ? 'PIPELINE RUNNING' : 'SYSTEM IDLE'}
             </span>
           </div>
@@ -138,11 +137,11 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
       {/* Main Graph Viewport Card */}
       <div
         ref={containerRef}
-        className="relative bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-emerald-100 h-[440px] w-full"
+        className="relative bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-[#e8ddcc] h-[440px] w-full"
       >
         {/* Soft radial glow backgrounds */}
-        <div className="absolute -top-12 -left-12 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-12 -right-12 w-80 h-80 bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-12 -left-12 w-64 h-64 bg-[#b59268]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-12 -right-12 w-80 h-80 bg-[#3d2c1d]/5 rounded-full blur-3xl pointer-events-none" />
 
         {/* SVG Layer for Connections/Edges */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
@@ -167,17 +166,17 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
             const toCompleted = isNodeCompleted(toNode);
             const toActive = isNodeActive(toNode);
 
-            let strokeColor = '#bbcabf';
+            let strokeColor = '#d6c7b2';
             let strokeDash = '2,4';
-            let opacity = '0.4';
+            let opacity = '0.5';
             let animated = false;
 
             if (toCompleted) {
-              strokeColor = '#006c49'; // Completed Emerald
+              strokeColor = '#3d2c1d'; // Completed Warm Dark Brown
               strokeDash = 'none';
               opacity = '1';
             } else if (toActive) {
-              strokeColor = '#14b8a6'; // Active Teal
+              strokeColor = '#b59268'; // Active Warm Gold / Bronze
               strokeDash = '4,4';
               opacity = '1';
               animated = true;
@@ -220,9 +219,9 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
             let nodeStyles = 'bg-white text-slate-500 border border-slate-200 opacity-50 shadow-xs';
 
             if (completed) {
-              nodeStyles = 'bg-[#006c49] text-white border-[#006c49] shadow-md shadow-emerald-900/10 scale-100';
+              nodeStyles = 'bg-[#3d2c1d] text-white border-[#3d2c1d] shadow-md shadow-amber-950/20 scale-100';
             } else if (active) {
-              nodeStyles = 'bg-[#6df5e1] text-[#006f64] border-[#006b5f]/40 scale-105 shadow-lg ring-2 ring-[#006b5f]/30 animate-pulse font-semibold';
+              nodeStyles = 'bg-[#ebdcb9] text-[#3d2c1d] border-[#b59268] scale-105 shadow-lg ring-2 ring-[#b59268]/40 animate-pulse font-semibold';
             }
 
             return (
@@ -250,17 +249,17 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
       <div className="flex flex-wrap items-center justify-between px-3 text-xs text-slate-600">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#006c49] shadow-xs" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#3d2c1d] shadow-xs" />
             <span className="font-mono text-[11px] font-medium text-slate-700">Validated</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#14b8a6] animate-pulse" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#b59268] animate-pulse" />
             <span className="font-mono text-[11px] font-medium text-slate-700">Processing</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#bbcabf]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#d6c7b2]" />
             <span className="font-mono text-[11px] font-medium text-slate-500">Queued</span>
           </div>
         </div>
@@ -268,7 +267,7 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
         {onReset && (
           <button
             onClick={onReset}
-            className="flex items-center gap-1 text-slate-500 hover:text-[#006c49] transition-colors font-mono text-[11px] cursor-pointer"
+            className="flex items-center gap-1 text-slate-500 hover:text-[#3d2c1d] transition-colors font-mono text-[11px] cursor-pointer"
           >
             <span className="material-symbols-outlined text-[16px]">restart_alt</span>
             <span>Reset Graph</span>
