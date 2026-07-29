@@ -213,10 +213,10 @@ export const StudioApp: React.FC<StudioAppProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-[#faf7f2] flex flex-col md:flex-row text-left font-sans text-slate-800">
+    <div className="min-h-screen bg-[#faf7f2] flex flex-col md:flex-row text-left font-pencil text-slate-800">
       
       {/* LEFT SIDEBAR matching Natural Tones design */}
-      <aside className="w-full md:w-72 bg-[#f5f2eb] border-r border-[#e8ddcc] p-4 flex flex-col justify-between shrink-0 h-auto md:h-screen sticky top-0 z-30">
+      <aside className="w-full md:w-72 bg-[#f5f2eb] border-r border-[#e8ddcc] p-4 flex flex-col justify-between shrink-0 h-auto md:h-screen sticky top-0 z-30 font-pencil">
         
         <div className="space-y-4">
           
@@ -232,7 +232,7 @@ export const StudioApp: React.FC<StudioAppProps> = ({
             </button>
             <button
               onClick={onBackToLanding}
-              className="text-xs text-slate-600 hover:text-[#3d2c1d] px-2 py-1 rounded bg-white border border-[#e8ddcc] cursor-pointer"
+              className="text-xs text-slate-600 hover:text-[#3d2c1d] px-2 py-1 rounded bg-white border border-[#e8ddcc] cursor-pointer font-pencil"
             >
               Home
             </button>
@@ -241,32 +241,32 @@ export const StudioApp: React.FC<StudioAppProps> = ({
           {/* New Question Button */}
           <button
             onClick={handleStartNewChat}
-            className="w-full py-2.5 px-3 bg-white border border-[#d6c7b2] rounded-xl font-medium text-[#3d2c1d] flex items-center justify-start gap-2 shadow-2xs hover:border-[#8c6842] hover:bg-[#fcfcfd] transition-all cursor-pointer"
+            className="w-full py-2.5 px-3 bg-white border border-[#d6c7b2] rounded-xl font-pencil font-bold text-[#3d2c1d] flex items-center justify-start gap-2 shadow-2xs hover:border-[#8c6842] hover:bg-[#fcfcfd] transition-all cursor-pointer text-base"
           >
             <Plus className="w-4 h-4 text-[#8c6842]" />
-            <span className="text-sm font-semibold">New Question</span>
+            <span>New Question</span>
           </button>
 
           {/* Search Input */}
-          <div className="relative">
+          <div className="relative font-pencil">
             <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search history"
-              className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white border border-[#e8ddcc] text-xs text-slate-700 focus:outline-none focus:border-[#8c6842]"
+              placeholder="Search history..."
+              className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white border border-[#e8ddcc] text-sm text-slate-700 focus:outline-none focus:border-[#8c6842] font-pencil"
             />
           </div>
 
           {/* Recent Question History */}
           <div className="space-y-1 pt-2">
-            <div className="text-[10px] font-mono uppercase font-bold text-[#735338] px-1 tracking-wider">
+            <div className="text-xs font-pencil uppercase font-bold text-[#735338] px-1 tracking-wider">
               Agent Pipeline Runs
             </div>
 
             {filteredChats.length === 0 ? (
-              <div className="text-center py-6 text-slate-400 text-xs space-y-1">
+              <div className="text-center py-6 text-slate-400 text-sm space-y-1 font-pencil">
                 <MessageSquare className="w-6 h-6 mx-auto opacity-40 text-[#8c6842]" />
                 <p>No queries run yet.</p>
               </div>
@@ -279,10 +279,10 @@ export const StudioApp: React.FC<StudioAppProps> = ({
                       setActiveChatId(chat.id);
                       setCurrentQuestion(chat.prompt);
                     }}
-                    className={`w-full text-left px-2.5 py-2 rounded-lg text-xs font-medium flex items-center justify-between transition-colors cursor-pointer ${
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-pencil flex items-center justify-between transition-colors cursor-pointer ${
                       activeChatId === chat.id
-                        ? 'bg-[#ebdcb9]/70 text-[#3d2c1d] font-semibold border border-[#b59268]'
-                        : 'text-slate-600 hover:bg-white hover:text-slate-900'
+                        ? 'bg-[#ebdcb9]/70 text-[#3d2c1d] font-bold border border-[#b59268]'
+                        : 'text-slate-700 hover:bg-white hover:text-slate-900'
                     }`}
                   >
                     <span className="truncate pr-2">{chat.title}</span>
@@ -296,10 +296,10 @@ export const StudioApp: React.FC<StudioAppProps> = ({
         </div>
 
         {/* Bottom Navigation / Exit Studio */}
-        <div className="pt-4 border-t border-[#e8ddcc] flex items-center justify-between text-xs text-slate-600">
+        <div className="pt-4 border-t border-[#e8ddcc] flex items-center justify-between text-xs text-slate-600 font-pencil">
           <button
             onClick={onBackToLanding}
-            className="flex items-center gap-2 text-slate-600 hover:text-[#3d2c1d] transition-colors text-left cursor-pointer font-medium"
+            className="flex items-center gap-2 text-slate-600 hover:text-[#3d2c1d] transition-colors text-left cursor-pointer font-bold text-sm"
           >
             <ArrowLeft className="w-4 h-4 text-slate-400" />
             <span>Return to Landing Page</span>
@@ -309,7 +309,7 @@ export const StudioApp: React.FC<StudioAppProps> = ({
       </aside>
 
       {/* MAIN STUDIO WORKSPACE */}
-      <main className="flex-1 bg-[#faf7f2] min-h-screen flex flex-col justify-between p-4 sm:p-6 lg:p-8 overflow-y-auto">
+      <main className="flex-1 bg-[#faf7f2] min-h-screen flex flex-col justify-between p-4 sm:p-6 lg:p-8 overflow-y-auto font-pencil">
         
         <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col justify-between my-2 space-y-6">
           
@@ -319,14 +319,14 @@ export const StudioApp: React.FC<StudioAppProps> = ({
             {/* Top Workspace Bar */}
             <div className="flex items-center justify-between border-b border-[#e8ddcc] pb-3 text-left">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold uppercase text-[#735338] tracking-wider">
+                <span className="text-sm font-pencil font-bold uppercase text-[#735338] tracking-wider">
                   Agent Graph Orchestrator
                 </span>
               </div>
               {currentQuestion && (
                 <button
                   onClick={handleStartNewChat}
-                  className="text-xs font-semibold text-[#8c6842] hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-sm font-pencil font-bold text-[#8c6842] hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   ← Ask another question
                 </button>
@@ -335,15 +335,15 @@ export const StudioApp: React.FC<StudioAppProps> = ({
 
             {/* Icon & Brand Tagline Section */}
             <div className="space-y-3 py-4 flex flex-col items-center">
-              <div className="w-20 h-20 rounded-full bg-white border-2 border-[#b59268]/30 shadow-md flex items-center justify-center p-2 hover:scale-105 transition-transform">
+              <div className="w-22 h-22 rounded-full bg-white border-2 border-[#b59268]/30 shadow-md flex items-center justify-center p-2 hover:scale-105 transition-transform">
                 <CouncilLogo size="xl" showText={false} badgeColor="#b59268" />
               </div>
               
               <div className="space-y-1">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#3d2c1d] tracking-tight font-sans">
+                <h1 className="text-3xl sm:text-4xl font-pencil font-bold text-[#3d2c1d] tracking-wide">
                   Council AI — Every AI. One Council.
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed font-sans">
+                <p className="text-base sm:text-lg text-slate-600 max-w-xl mx-auto leading-relaxed font-pencil">
                   Submit a prompt to run autonomous specialist agents across goal setting, research synthesis, evidence verification, knowledge graphs, and expert consensus.
                 </p>
               </div>
@@ -352,7 +352,7 @@ export const StudioApp: React.FC<StudioAppProps> = ({
             {/* Quick Sample Scenario Pills */}
             {!currentQuestion && (
               <div className="space-y-2 max-w-2xl mx-auto pt-1">
-                <div className="text-[11px] font-mono text-slate-400 uppercase font-bold tracking-wider">
+                <div className="text-xs font-pencil text-slate-500 uppercase font-bold tracking-wider">
                   Select a Sample Scenario
                 </div>
                 <div className="flex flex-wrap gap-2 justify-center">
@@ -360,7 +360,7 @@ export const StudioApp: React.FC<StudioAppProps> = ({
                     <button
                       key={i}
                       onClick={() => handleSelectQuickPrompt(promptText)}
-                      className="px-3.5 py-1.5 rounded-full bg-white border border-[#e8ddcc] hover:border-[#8c6842] hover:bg-[#f7f3ec] text-xs text-slate-700 hover:text-[#3d2c1d] transition-all cursor-pointer flex items-center gap-1.5 font-mono text-[11px] shadow-2xs"
+                      className="px-4 py-1.5 rounded-full bg-white border border-[#e8ddcc] hover:border-[#8c6842] hover:bg-[#f7f3ec] text-sm text-slate-800 hover:text-[#3d2c1d] transition-all cursor-pointer flex items-center gap-1.5 font-pencil shadow-2xs"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-[#b59268]" />
                       <span>{promptText}</span>
@@ -396,11 +396,11 @@ export const StudioApp: React.FC<StudioAppProps> = ({
           )}
 
           {/* BOTTOM AREA: CHATBOX / INPUT FORM */}
-          <div className="w-full pt-4 pb-2">
+          <div className="w-full pt-4 pb-2 font-pencil">
             <div className="bg-white border-2 border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
-              <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-600">
+              <div className="flex items-center justify-between text-xs font-pencil font-bold text-slate-700">
                 <span>Submit Question to Agent Pipeline</span>
-                <span className="text-[10px] text-[#735338] uppercase">POST /run</span>
+                <span className="text-xs text-[#735338] uppercase">POST /run</span>
               </div>
 
               <div className="border border-[#e8ddcc] rounded-xl p-3 bg-[#fdfbf7] space-y-3 focus-within:border-[#8c6842] focus-within:ring-2 focus-within:ring-[#8c6842]/20 transition-all">
@@ -415,15 +415,15 @@ export const StudioApp: React.FC<StudioAppProps> = ({
                   }}
                   placeholder="Type a question for the multi-agent graph pipeline..."
                   rows={2}
-                  className="w-full resize-none border-none focus:outline-none bg-transparent text-slate-800 text-sm font-sans placeholder:text-slate-400"
+                  className="w-full resize-none border-none focus:outline-none bg-transparent text-slate-900 text-base font-pencil placeholder:text-slate-400"
                 />
 
                 <div className="flex items-center justify-between pt-2 border-t border-[#e8ddcc]">
-                  <span className="text-xs text-slate-400 font-mono">Press Enter to dispatch POST /run</span>
+                  <span className="text-xs text-slate-500 font-pencil">Press Enter to dispatch POST /run</span>
                   <button
                     onClick={() => handleSubmitPrompt()}
                     disabled={!promptInput.trim() || isGenerating}
-                    className={`px-4 py-2 rounded-full font-mono text-xs font-bold text-white transition-all cursor-pointer flex items-center gap-1.5 ${
+                    className={`px-5 py-2 rounded-full font-pencil text-sm font-bold text-white transition-all cursor-pointer flex items-center gap-1.5 ${
                       promptInput.trim() && !isGenerating
                         ? 'bg-[#3d2c1d] hover:bg-[#2b1b10] shadow-md hover:scale-105'
                         : 'bg-slate-300 cursor-not-allowed'
@@ -431,7 +431,7 @@ export const StudioApp: React.FC<StudioAppProps> = ({
                   >
                     {isGenerating ? (
                       <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <Loader2 className="w-4 h-4 animate-spin" />
                         <span>Running Pipeline...</span>
                       </>
                     ) : (
@@ -452,9 +452,9 @@ export const StudioApp: React.FC<StudioAppProps> = ({
 
       {/* Webhook Inactive Popup Toast at bottom right */}
       {showWebhookInactiveToast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#181e29] text-white border border-slate-700 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all animate-fade-in">
+        <div className="fixed bottom-6 right-6 z-50 bg-[#181e29] text-white border border-slate-700 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all animate-fade-in font-pencil">
           <div className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
-          <span className="text-xs font-semibold tracking-wide text-slate-200 font-mono">Webhook inactive</span>
+          <span className="text-xs font-bold tracking-wide text-slate-200">Webhook inactive</span>
           <button
             onClick={() => setShowWebhookInactiveToast(false)}
             className="ml-2 text-slate-400 hover:text-white text-xs cursor-pointer p-0.5 rounded hover:bg-slate-800 transition-colors"

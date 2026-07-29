@@ -57,35 +57,36 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </button>
 
               <button
-                onClick={onWatchDemo}
+                onClick={() => {
+                  const el = document.getElementById('how-it-works');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  else onWatchDemo();
+                }}
                 className="px-7 py-3.5 rounded-2xl font-sans font-semibold text-base text-slate-800 bg-white border-2 border-slate-900/80 hover:bg-slate-50 flex items-center gap-2 cursor-pointer shadow-sm hover:shadow-md transition-all"
               >
                 <Play className="w-4 h-4 fill-slate-800 text-slate-800" />
-                <span>Watch live debate</span>
+                <span>Watch live automation video</span>
               </button>
             </div>
           </div>
 
-          {/* Right Column: Interactive Product Preview Mockup matching Image 1 */}
+          {/* Right Column: Interactive Product Preview Mockup */}
           <div className="lg:col-span-6 relative">
             
             {/* Playful Floating Hand-Drawn Icons */}
-            {/* Brain Icon Top-Left */}
             <div className="absolute -top-6 -left-4 z-20 bg-amber-100 p-2.5 rounded-2xl border-2 border-slate-800 shadow-md transform -rotate-12 animate-bounce duration-1000">
               <Brain className="w-6 h-6 text-amber-700" />
             </div>
 
-            {/* Bar Chart Top-Right */}
             <div className="absolute -top-4 -right-2 z-20 bg-sky-100 p-2.5 rounded-2xl border-2 border-slate-800 shadow-md transform rotate-12">
               <BarChart3 className="w-6 h-6 text-sky-700" />
             </div>
 
-            {/* Globe Bottom-Left */}
             <div className="absolute -bottom-6 -left-6 z-20 bg-emerald-100 p-2.5 rounded-2xl border-2 border-slate-800 shadow-md transform rotate-6">
               <Globe className="w-6 h-6 text-emerald-700" />
             </div>
 
-            {/* App Mockup Frame */}
+            {/* App Dashboard Mockup Frame */}
             <div
               onClick={onOpenStudio}
               className="card-handcrafted p-2 cursor-pointer transition-all hover:shadow-xl hover:scale-[1.01] group relative bg-white overflow-hidden"
@@ -106,7 +107,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 </div>
               </div>
 
-              {/* Inner Split View matching Image 1 */}
+              {/* Inner Split View Dashboard Mockup */}
               <div className="grid grid-cols-12 min-h-[340px] bg-white rounded-b-xl border border-slate-100 text-left text-xs">
                 
                 {/* Mini Left Sidebar */}

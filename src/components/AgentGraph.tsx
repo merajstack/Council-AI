@@ -106,28 +106,28 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto my-4 space-y-4 font-sans text-left">
+    <div className="w-full max-w-5xl mx-auto my-4 space-y-4 font-pencil text-left">
       
       {/* Header section with typographic texture */}
       <div className="flex items-end justify-between px-2">
         <div className="flex flex-col">
-          <span className="font-mono text-[11px] text-[#735338] uppercase tracking-widest font-bold mb-1">
+          <span className="font-pencil text-xs text-[#735338] uppercase tracking-widest font-bold mb-1">
             Process Visualization
           </span>
-          <h2 className="text-2xl font-bold text-[#1e293b] tracking-tight">
+          <h2 className="text-3xl font-pencil font-bold text-[#1e293b] tracking-tight">
             Neural Orchestration Graph
           </h2>
           {lastQuestion && (
-            <p className="text-xs text-slate-500 font-mono mt-0.5 max-w-md truncate">
+            <p className="text-sm text-slate-600 font-pencil mt-0.5 max-w-md truncate">
               Query: &ldquo;{lastQuestion}&rdquo;
             </p>
           )}
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 bg-[#f7f3ec] border border-[#d6c7b2] px-3 py-1 rounded-full text-xs font-mono">
-            <div className={`w-2 h-2 rounded-full ${isPipelineActive ? 'bg-[#b59268] animate-pulse' : 'bg-slate-400'}`} />
-            <span className="text-[#3d2c1d] font-medium uppercase">
+          <div className="flex items-center gap-1.5 bg-[#f7f3ec] border border-[#d6c7b2] px-3.5 py-1 rounded-full text-sm font-pencil">
+            <div className={`w-2.5 h-2.5 rounded-full ${isPipelineActive ? 'bg-[#b59268] animate-pulse' : 'bg-slate-400'}`} />
+            <span className="text-[#3d2c1d] font-bold uppercase">
               {isPipelineActive ? 'PIPELINE RUNNING' : 'SYSTEM IDLE'}
             </span>
           </div>
@@ -137,7 +137,7 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
       {/* Main Graph Viewport Card */}
       <div
         ref={containerRef}
-        className="relative bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-[#e8ddcc] h-[440px] w-full"
+        className="relative bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-[#e8ddcc] h-[440px] w-full"
       >
         {/* Soft radial glow backgrounds */}
         <div className="absolute -top-12 -left-12 w-64 h-64 bg-[#b59268]/10 rounded-full blur-3xl pointer-events-none" />
@@ -168,7 +168,7 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
 
             let strokeColor = '#d6c7b2';
             let strokeDash = '2,4';
-            let opacity = '0.5';
+            let opacity = '0.6';
             let animated = false;
 
             if (toCompleted) {
@@ -216,7 +216,7 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
             const completed = isNodeCompleted(node);
             const active = isNodeActive(node);
 
-            let nodeStyles = 'bg-white text-slate-500 border border-slate-200 opacity-50 shadow-xs';
+            let nodeStyles = 'bg-white text-slate-600 border border-slate-300 opacity-60 shadow-xs';
 
             if (completed) {
               nodeStyles = 'bg-[#3d2c1d] text-white border-[#3d2c1d] shadow-md shadow-amber-950/20 scale-100';
@@ -227,16 +227,16 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
             return (
               <div
                 key={node.id}
-                className={`node absolute -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 px-3.5 py-1.5 rounded-full transition-all duration-500 cursor-default select-none ${nodeStyles}`}
+                className={`node absolute -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-500 cursor-default select-none ${nodeStyles}`}
                 style={{
                   left: `${node.pos[0]}%`,
                   top: `${node.pos[1]}%`,
                 }}
               >
-                <span className="material-symbols-outlined text-[18px]">
+                <span className="material-symbols-outlined text-[20px]">
                   {node.icon}
                 </span>
-                <span className="font-mono text-xs whitespace-nowrap tracking-tight">
+                <span className="font-pencil text-sm font-semibold whitespace-nowrap tracking-tight">
                   {node.label}
                 </span>
               </div>
@@ -246,28 +246,28 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
       </div>
 
       {/* Legend & Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between px-3 text-xs text-slate-600">
+      <div className="flex flex-wrap items-center justify-between px-3 text-sm text-slate-700 font-pencil">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#3d2c1d] shadow-xs" />
-            <span className="font-mono text-[11px] font-medium text-slate-700">Validated</span>
+            <div className="w-3 h-3 rounded-full bg-[#3d2c1d] shadow-xs" />
+            <span className="font-pencil text-xs font-semibold text-slate-800">Validated</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#b59268] animate-pulse" />
-            <span className="font-mono text-[11px] font-medium text-slate-700">Processing</span>
+            <div className="w-3 h-3 rounded-full bg-[#b59268] animate-pulse" />
+            <span className="font-pencil text-xs font-semibold text-slate-800">Processing</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#d6c7b2]" />
-            <span className="font-mono text-[11px] font-medium text-slate-500">Queued</span>
+            <div className="w-3 h-3 rounded-full bg-[#d6c7b2]" />
+            <span className="font-pencil text-xs font-medium text-slate-500">Queued</span>
           </div>
         </div>
 
         {onReset && (
           <button
             onClick={onReset}
-            className="flex items-center gap-1 text-slate-500 hover:text-[#3d2c1d] transition-colors font-mono text-[11px] cursor-pointer"
+            className="flex items-center gap-1 text-slate-600 hover:text-[#3d2c1d] transition-colors font-pencil text-xs font-bold cursor-pointer"
           >
             <span className="material-symbols-outlined text-[16px]">restart_alt</span>
             <span>Reset Graph</span>
@@ -277,7 +277,7 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({
 
       {/* Still Working Message Banner if > 60s without consensus */}
       {showStillWorking && (
-        <div className="p-3 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-xs font-mono flex items-center gap-2.5 animate-fade-in shadow-xs">
+        <div className="p-3 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-sm font-pencil flex items-center gap-2.5 animate-fade-in shadow-xs">
           <span className="material-symbols-outlined text-amber-600 animate-spin text-[18px]">
             progress_activity
           </span>

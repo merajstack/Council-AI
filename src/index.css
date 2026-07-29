@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 @layer utilities {
+  .font-pencil {
+    font-family: 'Patrick Hand', 'Architects Daughter', 'Kalam', 'Caveat', cursive, sans-serif;
+  }
   .font-handwritten {
-    font-family: 'Patrick Hand', 'Caveat', cursive, sans-serif;
+    font-family: 'Patrick Hand', 'Architects Daughter', 'Kalam', 'Caveat', cursive, sans-serif;
   }
   .font-sans {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -97,4 +100,3 @@
   stroke-dashoffset: 1000;
   animation: drawStroke 2.5s ease-in-out forwards;
 }
-
