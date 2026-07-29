@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { CouncilLogo } from './CouncilLogo';
 import { EXAMPLE_VIDEOS } from '../data/examples';
-import { WhiteboardVideo, ChatItem, GoogleUser } from '../types';
+import { WhiteboardVideo, ChatItem } from '../types';
 import { WhiteboardPlayer } from './WhiteboardPlayer';
-import { db, handleFirestoreError, OperationType } from '../lib/firebase';
-import { collection, query, where, onSnapshot, setDoc, doc } from 'firebase/firestore';
 import {
   Plus,
   Search,
@@ -12,8 +10,6 @@ import {
   ArrowUp,
   Sparkles,
   ArrowLeft,
-  User,
-  LogOut,
   Brain,
   Palette,
   Mic,
@@ -24,15 +20,11 @@ import {
 interface StudioAppProps {
   onBackToLanding: () => void;
   initialPrompt?: string;
-  googleUser?: GoogleUser | null;
-  onOpenAuthModal?: () => void;
 }
 
 export const StudioApp: React.FC<StudioAppProps> = ({
   onBackToLanding,
   initialPrompt = '',
-  googleUser,
-  onOpenAuthModal,
 }) => {
   const [chats, setChats] = useState<ChatItem[]>([]);
 
@@ -45,36 +37,6 @@ export const StudioApp: React.FC<StudioAppProps> = ({
   const [generationStep, setGenerationStep] = useState<number>(0);
 
   const activeChat = chats.find(c => c.id === activeChatId);
-
-  // Load real-time chats from Firestore for current user
-  useEffect(() => {
-    if (!googleUser) return;
-    const chatsRef = collection(db, 'chats');
-    const q = query(chatsRef, where('userId', '==', googleUser.id));
-
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const loadedChats: ChatItem[] = snapshot.docs.map((docSnap) => {
-          const data = docSnap.data();
-          return {
-            id: data.id || docSnap.id,
-            title: data.title,
-            prompt: data.prompt,
-            createdAt: data.createdAt ? new Date(data.createdAt).toLocaleDateString() : 'Just now',
-            status: data.status || 'ready',
-            video: data.video,
-          };
-        });
-        setChats(loadedChats);
-      },
-      (err) => {
-        handleFirestoreError(err, OperationType.GET, 'chats');
-      }
-    );
-
-    return () => unsubscribe();
-  }, [googleUser]);
 
   // Quick suggestions list
   const quickPrompts = [
@@ -99,11 +61,6 @@ export const StudioApp: React.FC<StudioAppProps> = ({
     const promptToUse = forcedPrompt || promptInput;
     if (!promptToUse.trim() || isGenerating) return;
 
-    if (!googleUser) {
-      if (onOpenAuthModal) onOpenAuthModal();
-      return;
-    }
-
     setIsGenerating(true);
     setGenerationStep(1);
 
@@ -121,12 +78,7 @@ export const StudioApp: React.FC<StudioAppProps> = ({
         body: JSON.stringify({
           prompt: promptToUse,
           aspectRatio: selectedAspect,
-          user: googleUser ? {
-            id: googleUser.id,
-            email: googleUser.email,
-            name: googleUser.name,
-            picture: googleUser.picture,
-          } : { email: 'guest@council.ai', name: 'Guest User' }
+          user: { email: 'developer@council.ai', name: 'Council User' }
         }),
       });
 
@@ -145,21 +97,6 @@ export const StudioApp: React.FC<StudioAppProps> = ({
         status: 'ready',
         video: finalVideo,
       };
-
-      // Save to Firestore
-      try {
-        await setDoc(doc(db, 'chats', newChatItem.id), {
-          id: newChatItem.id,
-          userId: googleUser.id,
-          title: newChatItem.title,
-          prompt: newChatItem.prompt,
-          createdAt: newChatItem.createdAt,
-          status: 'ready',
-          video: finalVideo,
-        });
-      } catch (fErr) {
-        handleFirestoreError(fErr, OperationType.WRITE, `chats/${newChatItem.id}`);
-      }
 
       setChats(prev => [newChatItem, ...prev]);
       setActiveChatId(newChatItem.id);
@@ -257,45 +194,14 @@ export const StudioApp: React.FC<StudioAppProps> = ({
 
         </div>
 
-        {/* Bottom User Profile Card */}
+        {/* Bottom Navigation / Exit Studio */}
         <div className="pt-4 border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-600">
           <button
-            onClick={onOpenAuthModal}
-            className="flex items-center gap-2 truncate hover:opacity-80 transition-opacity text-left cursor-pointer"
-            title={googleUser ? `Connected as ${googleUser.email}` : 'Click to Sign in with Google'}
-          >
-            {googleUser ? (
-              <>
-                <img
-                  src={googleUser.picture}
-                  alt={googleUser.name}
-                  className="w-7 h-7 rounded-full border border-emerald-500 shrink-0"
-                />
-                <div className="truncate min-w-0">
-                  <div className="font-bold text-slate-800 text-[11px] truncate flex items-center gap-1">
-                    {googleUser.name}
-                  </div>
-                  <div className="text-[10px] text-slate-500 truncate">{googleUser.email}</div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="w-7 h-7 rounded-full bg-white border border-slate-300 flex items-center justify-center text-slate-700 font-bold shrink-0">
-                  <User className="w-4 h-4 text-slate-500" />
-                </div>
-                <div className="truncate">
-                  <span className="truncate font-semibold text-slate-800">Sign in with Google</span>
-                  <div className="text-[10px] text-indigo-600 font-mono">Sync Telemetry</div>
-                </div>
-              </>
-            )}
-          </button>
-          <button
             onClick={onBackToLanding}
-            className="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-200/60 transition-colors cursor-pointer"
-            title="Exit Studio"
+            className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors text-left cursor-pointer font-medium"
           >
-            <LogOut className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 text-slate-400" />
+            <span>Return to Landing Page</span>
           </button>
         </div>
 
